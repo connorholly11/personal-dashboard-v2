@@ -1,0 +1,246 @@
+'use client';
+
+import React, { useState, useEffect } from 'react'
+import DatePicker from 'react-datepicker'
+import "react-datepicker/dist/react-datepicker.css"
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
+
+interface Food {
+  id: number
+  name: string
+  calories: number
+  protein: number
+  carbs: number
+  fat: number
+}
+
+interface DailyFood {
+  id: string
+  date: string
+  foods: Food[]
+}
+
+const FoodTracker: React.FC = () => {
+  const { isAuthenticated, user } = useAuth();
+  const [dailyFoods, setDailyFoods] = useState<DailyFood[]>([])
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [newFood, setNewFood] = useState<Food>({ id: 0, name: '', calories: 0, protein: 0, carbs: 0, fat: 0 })
+  const [currentDailyFoodId, setCurrentDailyFoodId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      fetchDailyFoods()
+    }
+  }, [isAuthenticated, user])
+
+  const fetchDailyFoods = async () => {
+    const { data, error } = await supabase
+      .from('dailyFoods')
+      .select('*')
+      .order('date', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching daily foods:', error)
+    } else {
+      setDailyFoods(data || [])
+    }
+  }
+
+  const addFood = async () => {
+    if (!isAuthenticated || !user) {
+      alert("You must be logged in to add food.");
+      return;
+    }
+    if (newFood.name.trim()) {
+      const currentDate = selectedDate.toISOString().split('T')[0]
+      const { data, error } = await supabase
+        .from('dailyFoods')
+        .select('*')
+        .eq('date', currentDate)
+        .single()
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking for existing daily food:', error)
+        return
+      }
+
+      if (!data) {
+        const { error: insertError } = await supabase
+          .from('dailyFoods')
+          .insert({ date: currentDate, foods: [newFood], user_id: user.id })
+
+        if (insertError) {
+          console.error('Error inserting new daily food:', insertError)
+          return
+        }
+      } else {
+        const { error: updateError } = await supabase
+          .from('dailyFoods')
+          .update({ foods: [...data.foods, newFood] })
+          .eq('id', data.id)
+
+        if (updateError) {
+          console.error('Error updating daily food:', updateError)
+          return
+        }
+      }
+
+      setNewFood({ id: 0, name: '', calories: 0, protein: 0, carbs: 0, fat: 0 })
+      fetchDailyFoods()
+    }
+  }
+
+  const removeFood = async (dailyFoodId: string, foodId: number) => {
+    const { data, error } = await supabase
+      .from('dailyFoods')
+      .select('*')
+      .eq('id', dailyFoodId)
+      .single()
+
+    if (error) {
+      console.error('Error fetching daily food:', error)
+      return
+    }
+
+    const updatedFoods = data.foods.filter((food: Food) => food.id !== foodId)
+
+    const { error: updateError } = await supabase
+      .from('dailyFoods')
+      .update({ foods: updatedFoods })
+      .eq('id', dailyFoodId)
+
+    if (updateError) {
+      console.error('Error removing food:', updateError)
+    } else {
+      fetchDailyFoods()
+    }
+  }
+
+  const getCurrentDayFoods = () => {
+    const currentDate = selectedDate.toISOString().split('T')[0]
+    const currentDayFood = dailyFoods.find(day => day.date === currentDate)
+    if (currentDayFood) {
+      setCurrentDailyFoodId(currentDayFood.id)
+      return currentDayFood.foods
+    }
+    return []
+  }
+
+  const calculateDailyTotals = (foods: Food[]) => {
+    return foods.reduce((totals, food) => ({
+      calories: totals.calories + food.calories,
+      protein: totals.protein + food.protein,
+      carbs: totals.carbs + food.carbs,
+      fat: totals.fat + food.fat
+    }), { calories: 0, protein: 0, carbs: 0, fat: 0 })
+  }
+
+  return (
+    <div className="space-y-6 bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-4">Food Tracker</h2>
+      <div className="mb-4">
+        <DatePicker
+          selected={selectedDate}
+          onChange={(date: Date) => setSelectedDate(date)}
+          className="border rounded-md p-2"
+        />
+      </div>
+      <div className="grid grid-cols-6 gap-2">
+        <div className="col-span-2">
+          <label className="block text-sm font-medium text-gray-700">Food Name</label>
+          <input
+            type="text"
+            value={newFood.name}
+            onChange={(e) => setNewFood({ ...newFood, name: e.target.value })}
+            className="mt-1 block w-full border rounded-md p-2"
+            placeholder="e.g., Apple"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Calories</label>
+          <input
+            type="number"
+            value={newFood.calories}
+            onChange={(e) => setNewFood({ ...newFood, calories: Number(e.target.value) })}
+            className="mt-1 block w-full border rounded-md p-2"
+            placeholder="kcal"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Protein</label>
+          <input
+            type="number"
+            value={newFood.protein}
+            onChange={(e) => setNewFood({ ...newFood, protein: Number(e.target.value) })}
+            className="mt-1 block w-full border rounded-md p-2"
+            placeholder="grams"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Carbs</label>
+          <input
+            type="number"
+            value={newFood.carbs}
+            onChange={(e) => setNewFood({ ...newFood, carbs: Number(e.target.value) })}
+            className="mt-1 block w-full border rounded-md p-2"
+            placeholder="grams"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Fat</label>
+          <input
+            type="number"
+            value={newFood.fat}
+            onChange={(e) => setNewFood({ ...newFood, fat: Number(e.target.value) })}
+            className="mt-1 block w-full border rounded-md p-2"
+            placeholder="grams"
+          />
+        </div>
+      </div>
+      <button onClick={addFood} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Add Food</button>
+      <div>
+        <h3 className="text-xl font-bold mb-2">Food Log for {selectedDate.toDateString()}</h3>
+        {getCurrentDayFoods().length === 0 ? (
+          <p className="text-gray-500">No foods logged for this day. Start by adding a new food above!</p>
+        ) : (
+          <>
+            <ul className="space-y-2">
+              {getCurrentDayFoods().map((food) => (
+                <li key={food.id} className="flex items-center justify-between bg-gray-100 p-2 rounded-md">
+                  <span className="font-bold">{food.name}</span>
+                  <span>{food.calories} cal</span>
+                  <span>{food.protein}g protein</span>
+                  <span>{food.carbs}g carbs</span>
+                  <span>{food.fat}g fat</span>
+                  <button 
+                    onClick={() => currentDailyFoodId && removeFood(currentDailyFoodId, food.id)} 
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 bg-blue-100 p-4 rounded-md">
+              <h4 className="font-bold">Daily Totals:</h4>
+              {(() => {
+                const totals = calculateDailyTotals(getCurrentDayFoods())
+                return (
+                  <p>
+                    Calories: {totals.calories} | 
+                    Protein: {totals.protein}g | 
+                    Carbs: {totals.carbs}g | 
+                    Fat: {totals.fat}g
+                  </p>
+                )
+              })()}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default FoodTracker
