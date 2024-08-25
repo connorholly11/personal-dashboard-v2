@@ -1,0 +1,168 @@
+Updated Personal Dashboard Development Plan
+
+
+2. Dashboard Layout
+
+Design an intuitive, user-friendly interface
+Create separate sections for different features (workouts, diet, habits, reflections, etc.)
+Ensure responsive design for mobile and desktop use
+
+3. Daily Structure
+
+Display non-negotiable tasks and reminders for each day
+Integrate with Google Calendar (see section 15 for details)
+Show context for each item when applicable
+
+4. Weekly Schedule
+
+Implement a weekly view with the following structure:
+
+Monday to Friday: Show daily tasks and workouts
+Thursday: Prompt to decide weekend work day
+Weekend:
+
+Designated work day: Mark as "Caffeine Day"
+Other day: Mark as "Social Media Day"
+
+
+
+
+
+5. Workout Tracker
+
+Create a workout schedule with the following structure:
+
+Monday: Upper body
+Tuesday: Legs
+Wednesday: Run
+Thursday: Upper body
+Friday: Legs
+Saturday & Sunday: Workout, hike, or walks
+
+
+Set consistent workout time from 2pm to 4pm daily
+Allow input and tracking of specific lifts and exercises
+Provide progress visualization (charts, graphs)
+
+I will color code with reps and graph with weight. so the graph shows reps, but the dots
+on the graph will be color coded based on amount of reps. 0-5 red, 6-9 yellow, 10-12 green.
+
+
+6. Diet Tracker
+
+Implement a food logging system
+Provide a database of common foods with preset macros
+Allow custom food entries
+Calculate and display daily macro totals
+Show nutritional goals and progress
+
+7. Habit Tracking
+
+Create a list of daily habits to track
+Implement checkboxes for habit completion
+Display habit streaks and completion rates
+Include flexible options (e.g., "followed caffeine rule")
+Integrate with calendar view to show habit adherence over time
+Implement 75 Hard challenge tracking (if applicable)
+
+8. Daily Reflection
+
+Integrate with existing NoteTranscriber feature
+Provide interface for daily audio recording
+Implement automatic transcription of audio to text
+Store daily entries with timestamps
+Create a browsing interface for past reflections and transcriptions
+Implement an export feature to download all entries at once, including dates
+
+9. Data Persistence
+
+Set up a secure database to store all user data
+Implement regular data backups
+Ensure data is retrievable across sessions and devices
+
+10. Customization Options
+
+Allow users to modify preset options (e.g., workout times, meal plans)
+Provide the ability to add or remove tracked habits
+Let users customize dashboard layout and color schemes
+
+11. Reporting and Analytics
+
+Generate weekly and monthly reports on:
+
+Habit adherence
+Workout progress
+Diet and nutrition
+
+
+Create visualizations (graphs, charts) for easy data interpretation
+Provide insights and trend analysis
+
+12. Notifications and Reminders
+
+Implement a notification system for:
+
+Upcoming tasks
+Habit reminders
+Workout schedules
+
+
+Allow customization of notification preferences
+Integrate with mobile push notifications and email
+
+13. Mobile Responsiveness
+
+Ensure the dashboard is fully functional on mobile devices
+Optimize layout and interactions for touch interfaces
+Implement a progressive web app for improved mobile experience
+
+14. Google Calendar Integration
+
+Set up Google Cloud project and enable Google Calendar API
+Implement OAuth 2.0 for secure Google account authentication
+Create functionality to:
+
+Fetch events from Google Calendar
+Update dashboard with calendar events
+Push dashboard events to Google Calendar
+
+
+Allow users to choose which calendars to sync
+Set up regular sync intervals (e.g., hourly, daily)
+Implement conflict resolution for events updated in both places
+
+15. Documentation and README Updates
+
+Create and maintain a comprehensive README file including:
+
+Project overview and purpose
+Setup instructions
+Usage guide
+List of features
+Technologies used
+Contribution guidelines (if applicable)
+
+
+Update documentation for each feature as it's developed or modified
+Include code comments for complex logic or non-obvious functionality
+Create user documentation explaining all dashboard features and how to use them
+
+Instructions for AI Developer:
+
+Review this complete plan thoroughly.
+Break down each section into specific development tasks.
+Prioritize tasks based on core functionality and user needs.
+Begin with user authentication and basic dashboard structure.
+Implement core features (workout tracker, diet tracker, habit tracking) one at a time.
+Integrate Google Calendar early in the process to ensure proper sync of events and reminders.
+Regularly update the README and documentation as you develop each feature.
+Seek user feedback on UI/UX and adjust as necessary.
+
+
+
+
+can we have it where someone doesn't need to be logged in to see my dashboard, but they do need to be logged in to chaneg 
+anything in my dashboard? I'd rather have that. for me, right now it's just about making my own dashboard. 
+the login is really just so no one else can mess with my dashboard, but I still want people to be able to look at it. 
+I want this to be a kind of new sort of blog. instead of writing. I just openly share my data, and my thoughts. 
+and people can follow along if they will. able to hook in peoples data from different sources. 
